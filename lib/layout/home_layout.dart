@@ -1,51 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:news_c7_mon/models/SourcesResponse.dart';
+import 'package:news_c7_mon/models/category.dart';
+import 'package:news_c7_mon/screens/tab_controller.dart';
 import 'package:news_c7_mon/shared/network/remote/api_manager.dart';
 
-class HomeLayout extends StatelessWidget {
+import '../screens/categories_screen.dart';
+import '../screens/drawerWidget.dart';
+import '../screens/home_screen.dart';
 
+class HomeLayout extends StatefulWidget {
   static const String routeName = 'HomeScreen';
 
   @override
+  State<HomeLayout> createState() => _HomeLayoutState();
+}
+
+class _HomeLayoutState extends State<HomeLayout> {
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('News Monday'),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        image: DecorationImage(image:
+        AssetImage('assets/images/pattern.png',
+        ),
+        fit: BoxFit.cover)
       ),
-      body: FutureBuilder<SourcesResponse>(
-        future: ApiManager.getSources(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-                child: Column(
-                    children: [
-                    Text('Something went wrong'),
-                TextButton(onPressed: ()
-            {},
-          child: Text('Try Again'))
-          ],
-          )
-          ,
-          );
-        }
-          if(snapshot.data?.status!='ok'){
-            return Column(
-              children: [
-                Text(snapshot.data?.message??"Error"),
-                TextButton(onPressed: ()
-                {},
-                    child: Text('Try Again'))
-              ],
-            );
-          }
-          var sources=snapshot.data?.sources??[];
-          return ListView.builder(itemBuilder: (context, index) {
-            return Text(sources[index].name??"");
-          },itemCount:sources.length ,);
-        },),
+      child: Scaffold (
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: Colors.green,
+          shape: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.transparent
+            ),
+            borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(25)
+                ,bottomLeft: Radius.circular(25)
+            )
+          ),
+          title: Text('News Monday'),
+        ),
+          drawer: DrawerWidget(onDrawerSelected),
+          body:categoryData==null?
+          CategoriesScreen(onCategorySelected):
+          HomeScreen(categoryData!),
+      ),
     );
+  }
+
+  CategoryData? categoryData=null;
+
+  void onDrawerSelected(number){
+    if(number==DrawerWidget.CATEGORIES){
+      categoryData=null;
+
+    }else if(number==DrawerWidget.SETTINGS){
+      // open settings screen
+    }
+    setState(() {
+      Navigator.pop(context);
+    });
+  }
+
+  void onCategorySelected(category){
+    categoryData=category;
+    setState(() {
+
+    });
   }
 }
